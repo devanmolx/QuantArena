@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { BINANCE_BASE_URL } from "../config/constants.ts";
 import type { Candle } from "../types/types.ts";
 import { calculateIndicators } from "../utils/indicators.ts";
+import prisma from "../utils/prisma.ts";
 dotenv.config();
 
 class BinanceService {
@@ -27,6 +28,16 @@ class BinanceService {
             ema20,
             macd
         }
+    }
+
+    async getOpenPositions() {
+        const positions = await prisma.position.findMany({
+            where: {
+                isOpen: true
+            }
+        })
+
+        return positions;
     }
 }
 
