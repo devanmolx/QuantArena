@@ -7,12 +7,8 @@ dotenv.config();
 
 class BinanceService {
     async getCandleStickData(symbol: string, interval: string, limit: number = 100): Promise<any> {
-        const response = await axios.get(`${BINANCE_BASE_URL}/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`, {
-            headers: {
-                'X-MBX-APIKEY': process.env.BINANCE_API_KEY,
-                'X-MBX-APISECRET': process.env.BINANCE_API_SECRET
-            }
-        });
+        const response = await axios.get(`${BINANCE_BASE_URL}/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
+
         const data: Candle[] = response.data.map((candle: any[]) => ({
             openTime: candle[0],
             open: parseFloat(candle[1]),
