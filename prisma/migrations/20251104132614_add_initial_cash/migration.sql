@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Account" ADD COLUMN     "initialCapital" DOUBLE PRECISION NOT NULL DEFAULT 10000;

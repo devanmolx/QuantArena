@@ -65,6 +65,55 @@ class BinanceService {
 
         `
     }
+
+    async getAccountData(id: number) {
+        const account = await prisma.account.findUnique({
+            where: {
+                id
+            },
+            include: {
+                positions: {
+                    where: {
+                        isOpen: true
+                    },
+                    include: {
+                        exit_plan: true
+                    }
+                },
+            }
+        })
+
+        if (!account) {
+            throw new Error("Account not found");
+        }
+
+        const symbols = [...new Set(account.positions.map(p => p.symbol))];
+        const prices = await Promise.all(symbols.map(symbol => this.getCurrentPrice(symbol)));
+
+        const priceMap = Object.fromEntries(symbols.map((s, i) => [s, prices[i]]));
+
+        let totalPnl = 0;
+
+        account.positions.map(async (position) => {
+            const pnl = parseFloat((((priceMap[position.symbol]! - position.entryPrice) * position.quantity * position.leverage).toFixed(2)));
+            position.pnl = position.side === "LONG" ? pnl : -pnl;
+
+            totalPnl += position.pnl;
+        })
+
+        account.accountValue = parseFloat((account.availableCash + totalPnl).toFixed(2));
+
+        account.totalReturn = parseFloat(
+            (((account.accountValue - account.initialCapital) / account.initialCapital) * 100).toFixed(2)
+        );
+
+        return account;
+    }
+
+    async getCurrentPrice(symbol: string): Promise<number> {
+        const response = await axios.get(`${BINANCE_BASE_URL}/ticker/price?symbol=${symbol}`);
+        return parseFloat(response.data.price);
+    }
 }
 
 const binanceService = new BinanceService();

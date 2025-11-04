@@ -12,15 +12,22 @@ export async function invokeAgent() {
     const minutesSinceStart = Math.floor((Date.now() - startTime) / 60000);
     const currentTime = new Date().toISOString();
 
-    const openPositions = await binanceService.getOpenPositions();
-    const portfolioValue = 10000;
+    const accountData = await binanceService.getAccountData(1);
+
+    if (!accountData) {
+        throw new Error("Account not found");
+    }
+
+    const totalReturn = accountData.totalReturn;
+    const availableCash = accountData.availableCash;
+    const accountValue = accountData.accountValue;
+
+    const openPositions = accountData.positions;
 
     const BTCData = await binanceService.getFormattedData("BTCUSDT");
 
-    console.log(BTCData)
-
     const prompt = ChatPromptTemplate.fromTemplate(`
-        It has been {minutesSinceStart} minutes since you started trading. 
+        It has been {minutesSinceStart} minutes since you started trading.
         The current time is {currentTime} and you've been invoked {invocationCount} times.
 
         Below, we provide state data, price data, and predictive signals for you to analyze and discover alpha.
@@ -28,11 +35,15 @@ export async function invokeAgent() {
 
         CURRENT MARKET STATE FOR ALL COINS
 
-        Portfolio Value: {portfolioValue}
-        Open Positions: {openPositions}
-        BTC Data: {BTCData}
+        {BTCData}
 
-        Respond using tool calls or a natural explanation.
+        HERE IS YOUR ACCOUNT INFORMATION & PERFORMANCE
+        
+        Current Total Return (percent): {totalReturn}
+        Available Cash: {availableCash}
+        Current Account Value: {accountValue}
+
+        Current live positions and performance: {openPositions}
   `);
 
     const llmWithTools = llm.bindTools([createPositionTool, closePositionTool]);
@@ -43,9 +54,11 @@ export async function invokeAgent() {
         minutesSinceStart,
         currentTime,
         invocationCount,
-        portfolioValue,
-        openPositions,
-        BTCData,
+        BTCData: JSON.stringify(BTCData, null, 2),
+        totalReturn,
+        availableCash,
+        accountValue,
+        openPositions: JSON.stringify(openPositions, null, 2),
     });
 
     console.log("Agent Response:", result);

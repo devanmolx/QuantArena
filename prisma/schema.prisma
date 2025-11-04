@@ -13,6 +13,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id             Int      @id @default(autoincrement())
+  name           String
+  totalReturn    Float    @default(0.0)
+  initialCapital Float    @default(10000)
+  availableCash  Float    @default(10000)
+  accountValue   Float    @default(10000)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  positions Position[]
+}
+
 model Position {
   id         Int       @id @default(autoincrement())
   symbol     String
@@ -23,6 +36,21 @@ model Position {
   leverage   Int
   createdAt  DateTime  @default(now())
   closedAt   DateTime?
-  pnl        Float
+  pnl        Float     @default(0.0)
   isOpen     Boolean   @default(true)
+
+  exit_plan ExitPLAN? @relation("PositionExitPlan")
+
+  Account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId Int
+}
+
+model ExitPLAN {
+  id                    Int    @id @default(autoincrement())
+  profitTarget          Float
+  stopLoss              Float
+  invalidationCondition String
+
+  positionId Int      @unique
+  position   Position @relation("PositionExitPlan", fields: [positionId], references: [id], onDelete: Cascade)
 }
