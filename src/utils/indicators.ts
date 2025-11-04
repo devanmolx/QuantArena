@@ -1,8 +1,8 @@
 import { EMA, MACD } from "technicalindicators";
-import type { Candle } from "../types/types.ts";
+import type { CandleType } from "../types/types.ts";
 
-export const calculateIndicators = (data: Candle[]) => {
-    const closes = data.map((candle: Candle) => candle.close);
+export const calculateIndicators = (data: CandleType[]) => {
+    const closes = data.map((candle) => candle.close);
 
     const ema20 = EMA.calculate({ values: closes, period: 20 }).splice(-10);
 
@@ -15,7 +15,7 @@ export const calculateIndicators = (data: Candle[]) => {
         SimpleMASignal: false,
     }).slice(-10);
 
-    const midPrices = data.map((candle: Candle) => (candle.high + candle.low) / 2).slice(-10);
+    const midPrices = data.map((candle) => (candle.high + candle.low) / 2).slice(-10);
 
     return {
         midPrices,

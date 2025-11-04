@@ -1,4 +1,6 @@
-export interface Candle {
+import type { MACDOutput } from "technicalindicators/declarations/moving_averages/MACD.js";
+
+export interface CandleType {
     openTime: number;
     open: number;
     high: number;
@@ -6,4 +8,11 @@ export interface Candle {
     close: number;
     volume: number;
     closeTime: number;
+}
+
+export interface CandleStickDataType {
+    data: CandleType[];
+    midPrices: number[];
+    ema20: number[];
+    macd: MACDOutput[];
 }
