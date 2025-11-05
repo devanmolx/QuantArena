@@ -112,7 +112,7 @@ class BinanceService {
             })
         );
 
-        account.accountValue = parseFloat((account.availableCash + totalPnl).toFixed(2));
+        account.accountValue = parseFloat((account.accountValue + totalPnl).toFixed(2));
 
         account.totalReturn = parseFloat(
             (((account.accountValue - account.initialCapital) / account.initialCapital) * 100).toFixed(2)
