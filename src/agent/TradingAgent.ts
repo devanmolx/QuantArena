@@ -1,8 +1,8 @@
-import binanceService from "../services/BinanceService.ts";
+import binanceService from "../services/BinanceService.js";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { llm } from "../services/LLMService.ts";
-import { createPositionTool, closePositionTool } from "./tools.ts";
-import prisma from "../utils/prisma.ts";
+import { llm } from "../services/LLMService.js";
+import { createPositionTool, closePositionTool } from "./tools.js";
+import prisma from "../utils/prisma.js";
 
 let invocationCount = 0;
 const startTime = Date.now();
@@ -95,9 +95,9 @@ export async function invokeAgent() {
         for (const toolCall of toolCalls) {
             try {
                 if (toolCall.name === "createPosition") {
-                    await createPositionTool.invoke(toolCall.args);
+                    await createPositionTool.invoke(toolCall);
                 } else if (toolCall.name === "closePosition") {
-                    await closePositionTool.invoke(toolCall.args);
+                    await closePositionTool.invoke(toolCall);
                 }
             } catch (err) {
                 console.error(`❌ Error executing ${toolCall.name}:`, err);

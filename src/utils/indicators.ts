@@ -1,5 +1,5 @@
 import { EMA, MACD } from "technicalindicators";
-import type { CandleType } from "../types/types.ts";
+import type { CandleType } from "../types/types.js";
 
 export const calculateIndicators = (data: CandleType[]) => {
     const closes = data.map((candle) => candle.close);

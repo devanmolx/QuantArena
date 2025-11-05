@@ -1,5 +1,7 @@
-import { invokeAgent } from "./agent/TradingAgent.ts";
+import { invokeAgent } from "./agent/TradingAgent.js";
+
+invokeAgent();
 
 setTimeout(() => {
     invokeAgent();
-}, 1000 * 60 * 60 * 10)
+}, 1000 * 60 * 10)

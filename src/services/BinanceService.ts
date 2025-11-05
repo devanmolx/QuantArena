@@ -1,9 +1,9 @@
 import axios from "axios";
 import dotenv from "dotenv";
-import { BINANCE_BASE_URL } from "../config/constants.ts";
-import type { CandleStickDataType, CandleType } from "../types/types.ts";
-import { calculateIndicators } from "../utils/indicators.ts";
-import prisma from "../utils/prisma.ts";
+import { BINANCE_BASE_URL } from "../config/constants.js";
+import type { CandleStickDataType, CandleType } from "../types/types.js";
+import { calculateIndicators } from "../utils/indicators.js";
+import prisma from "../utils/prisma.js";
 dotenv.config();
 
 class BinanceService {

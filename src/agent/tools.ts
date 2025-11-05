@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { tool } from "@langchain/core/tools";
-import binanceService from "../services/BinanceService.ts";
-import prisma from "../utils/prisma.ts";
+import binanceService from "../services/BinanceService.js";
+import prisma from "../utils/prisma.js";
 
 export const createPositionTool = tool(
     async ({ symbol, side, quantity, leverage }: { symbol: string; side: "LONG" | "SHORT"; quantity: number; leverage: number }) => {
