@@ -4,11 +4,7 @@ import { llm } from "../services/LLMService.js";
 import { createPositionTool, closePositionTool } from "./tools.js";
 import prisma from "../utils/prisma.js";
 
-let invocationCount = 0;
-const startTime = Date.now();
-
-export async function invokeAgent() {
-    invocationCount++;
+export async function invokeAgent(invocationCount: number, startTime: number) {
 
     const minutesSinceStart = Math.floor((Date.now() - startTime) / 60000);
     const currentTime = new Date().toISOString();
@@ -31,8 +27,8 @@ export async function invokeAgent() {
         You are an autonomous crypto trading agent that must make decisions each cycle.
 
         Your mission: maximize profit and minimize drawdown. You have tools:
-        - createPosition(symbol: string, side: "LONG" | "SHORT", amount: number, reason: string)
-        - closePosition(symbol: string, reason: string)
+        - createPosition(symbol: string, side: "LONG" | "SHORT", quantity: number, leverage: number)
+        - closePosition(transactionId: number)
 
         DATA CONTEXT:
 

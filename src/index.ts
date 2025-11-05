@@ -1,7 +1,12 @@
 import { invokeAgent } from "./agent/TradingAgent.js";
 
-invokeAgent();
+let invocationCount = 0;
+const startTime = Date.now();
+
+invokeAgent(invocationCount, startTime);
+invocationCount++;
 
 setTimeout(() => {
-    invokeAgent();
+    invokeAgent(invocationCount, startTime);
+    invocationCount++;
 }, 1000 * 60 * 10)

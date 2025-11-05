@@ -97,7 +97,7 @@ class BinanceService {
         const updatedPositions = await Promise.all(
             account.positions.map(async (position) => {
                 const pnl = parseFloat(
-                    (((priceMap[position.symbol]! - position.entryPrice) * position.quantity * position.leverage).toFixed(2))
+                    (((priceMap[position.symbol]! - position.entryPrice) * position.quantity).toFixed(2))
                 );
 
                 position.pnl = position.side === "LONG" ? pnl : -pnl;

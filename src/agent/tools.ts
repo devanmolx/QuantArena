@@ -66,17 +66,17 @@ export const createPositionTool = tool(
 );
 
 export const closePositionTool = tool(
-    async ({ symbol }: { symbol: string }) => {
+    async ({ transactionId }: { transactionId: number }) => {
         const accountId = 1;
 
-        const position = await prisma.position.findFirst({
-            where: { symbol, isOpen: true, accountId },
+        const position = await prisma.position.findUnique({
+            where: { id: transactionId },
         });
 
-        if (!position) throw new Error(`No open position found for ${symbol}`);
+        if (!position) throw new Error(`No open position found for ${transactionId}`);
 
-        const currentPrice = await binanceService.getCurrentPrice(symbol);
-        const diff = (currentPrice - position.entryPrice) * position.quantity * position.leverage;
+        const currentPrice = await binanceService.getCurrentPrice(position.symbol);
+        const diff = (currentPrice - position.entryPrice) * position.quantity;
         const pnl = position.side === "LONG" ? diff : -diff;
 
         await prisma.position.update({
@@ -94,6 +94,7 @@ export const closePositionTool = tool(
 
         const marginReleased = (position.quantity * position.entryPrice) / position.leverage;
         const newCash = account.availableCash + marginReleased + pnl;
+        const accountValue = account.accountValue + pnl;
 
         const totalReturn = parseFloat(
             (((account.accountValue - account.initialCapital) / account.initialCapital) * 100).toFixed(2)
@@ -101,25 +102,26 @@ export const closePositionTool = tool(
 
         await prisma.account.update({
             where: { id: accountId },
-            data: { availableCash: newCash, totalReturn },
+            data: { availableCash: newCash, totalReturn, accountValue },
         });
 
-        console.log(`✅ Closed ${symbol} at ${currentPrice}. PnL: ${pnl.toFixed(2)}.`);
+        console.log(`✅ Closed ${position.symbol} at ${currentPrice}. PnL: ${pnl.toFixed(2)}.`);
 
         return {
             status: "closed",
-            symbol,
+            symbol: position.symbol,
             exitPrice: currentPrice,
             pnl: parseFloat(pnl.toFixed(2)),
             newCash: parseFloat(newCash.toFixed(2)),
-            totalReturn
+            totalReturn,
+            accountValue
         };
     },
     {
         name: "closePosition",
         description: "Close a simulated trading position and update the database",
         schema: z.object({
-            symbol: z.string(),
+            transactionId: z.number(),
         }),
     }
 );
