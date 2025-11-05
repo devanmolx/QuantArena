@@ -13,6 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model AgentInvocation {
+  id                Int      @id @default(autoincrement())
+  timestamp         DateTime @default(now())
+  minutesSinceStart Int
+  invocationCount   Int
+  accountValue      Float
+  availableCash     Float
+  totalReturn       Float
+  btcData           Json
+  openPositions     Json
+  toolCalls         Json?
+  response          String
+}
+
 model Account {
   id             Int      @id @default(autoincrement())
   name           String

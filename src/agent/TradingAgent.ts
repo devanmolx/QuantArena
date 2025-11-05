@@ -2,6 +2,7 @@ import binanceService from "../services/BinanceService.ts";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { llm } from "../services/LLMService.ts";
 import { createPositionTool, closePositionTool } from "./tools.ts";
+import prisma from "../utils/prisma.ts";
 
 let invocationCount = 0;
 const startTime = Date.now();
@@ -74,8 +75,24 @@ export async function invokeAgent() {
 
     console.log("Agent Response:", result);
 
-    if (result.tool_calls?.length) {
-        for (const toolCall of result.tool_calls) {
+    const toolCalls = result.tool_calls;
+
+    await prisma.agentInvocation.create({
+        data: {
+            minutesSinceStart,
+            invocationCount,
+            accountValue,
+            availableCash,
+            totalReturn,
+            btcData: BTCData,
+            openPositions,
+            toolCalls: toolCalls ? JSON.parse(JSON.stringify(toolCalls)) : undefined,
+            response: result.text,
+        }
+    })
+
+    if (toolCalls?.length) {
+        for (const toolCall of toolCalls) {
             try {
                 if (toolCall.name === "createPosition") {
                     await createPositionTool.invoke(toolCall.args);

@@ -94,12 +94,23 @@ class BinanceService {
 
         let totalPnl = 0;
 
-        account.positions.map(async (position) => {
-            const pnl = parseFloat((((priceMap[position.symbol]! - position.entryPrice) * position.quantity * position.leverage).toFixed(2)));
-            position.pnl = position.side === "LONG" ? pnl : -pnl;
+        const updatedPositions = await Promise.all(
+            account.positions.map(async (position) => {
+                const pnl = parseFloat(
+                    (((priceMap[position.symbol]! - position.entryPrice) * position.quantity * position.leverage).toFixed(2))
+                );
 
-            totalPnl += position.pnl;
-        })
+                position.pnl = position.side === "LONG" ? pnl : -pnl;
+                totalPnl += position.pnl;
+
+                await prisma.position.update({
+                    where: { id: position.id },
+                    data: { pnl: position.pnl },
+                });
+
+                return position;
+            })
+        );
 
         account.accountValue = parseFloat((account.availableCash + totalPnl).toFixed(2));
 
@@ -107,7 +118,16 @@ class BinanceService {
             (((account.accountValue - account.initialCapital) / account.initialCapital) * 100).toFixed(2)
         );
 
-        return account;
+        await prisma.account.update({
+            where: { id: account.id },
+            data: {
+                totalReturn: account.totalReturn,
+                accountValue: account.accountValue,
+                availableCash: account.availableCash,
+            }
+        })
+
+        return { ...account, positions: updatedPositions };
     }
 
     async getCurrentPrice(symbol: string): Promise<number> {
