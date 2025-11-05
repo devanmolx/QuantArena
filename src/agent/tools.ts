@@ -82,6 +82,7 @@ export const closePositionTool = tool(
         await prisma.position.update({
             where: { id: position.id },
             data: {
+                pnl,
                 isOpen: false,
                 exitPrice: currentPrice,
                 closedAt: new Date(),
@@ -94,9 +95,13 @@ export const closePositionTool = tool(
         const marginReleased = (position.quantity * position.entryPrice) / position.leverage;
         const newCash = account.availableCash + marginReleased + pnl;
 
+        const totalReturn = parseFloat(
+            (((account.accountValue - account.initialCapital) / account.initialCapital) * 100).toFixed(2)
+        );
+
         await prisma.account.update({
             where: { id: accountId },
-            data: { availableCash: newCash },
+            data: { availableCash: newCash, totalReturn },
         });
 
         console.log(`✅ Closed ${symbol} at ${currentPrice}. PnL: ${pnl.toFixed(2)}.`);
@@ -107,6 +112,7 @@ export const closePositionTool = tool(
             exitPrice: currentPrice,
             pnl: parseFloat(pnl.toFixed(2)),
             newCash: parseFloat(newCash.toFixed(2)),
+            totalReturn
         };
     },
     {

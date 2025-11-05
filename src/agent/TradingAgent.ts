@@ -27,24 +27,35 @@ export async function invokeAgent() {
     const BTCData = await binanceService.getFormattedData("BTCUSDT");
 
     const prompt = ChatPromptTemplate.fromTemplate(`
-        It has been {minutesSinceStart} minutes since you started trading.
-        The current time is {currentTime} and you've been invoked {invocationCount} times.
+        You are an autonomous crypto trading agent that must make decisions each cycle.
 
-        Below, we provide state data, price data, and predictive signals for you to analyze and discover alpha.
-        ALL OF THE PRICE OR SIGNAL DATA BELOW IS ORDERED OLDEST → NEWEST.
+        Your mission: maximize profit and minimize drawdown. You have tools:
+        - createPosition(symbol: string, side: "LONG" | "SHORT", amount: number, reason: string)
+        - closePosition(symbol: string, reason: string)
 
-        CURRENT MARKET STATE FOR ALL COINS
+        DATA CONTEXT:
 
+        Time Elapsed: {minutesSinceStart} minutes since start
+        Current Time: {currentTime}
+        Invocation Count: {invocationCount}
+
+        MARKET DATA (ordered oldest → newest):
         {BTCData}
 
-        HERE IS YOUR ACCOUNT INFORMATION & PERFORMANCE
-        
-        Current Total Return (percent): {totalReturn}
+        ACCOUNT INFO:
+        Total Return (%): {totalReturn}
         Available Cash: {availableCash}
-        Current Account Value: {accountValue}
+        Account Value: {accountValue}
 
-        Current live positions and performance: {openPositions}
-  `);
+        CURRENT OPEN POSITIONS:
+        {openPositions}
+
+        Now:
+        - Analyze the market
+        - Decide whether to open or close any positions
+        - Use the correct tool(s) to execute
+    `);
+
 
     const llmWithTools = llm.bindTools([createPositionTool, closePositionTool]);
 
