@@ -24,9 +24,10 @@ export async function invokeAgent(invocationCount: number, startTime: number) {
     const BTCData = await binanceService.getFormattedData("BTCUSDT");
 
     const prompt = ChatPromptTemplate.fromTemplate(`
-        You are an autonomous crypto trading agent that must make decisions each cycle.
+        You are an expert trader. You were given $10000 dollars to trade with. 
+        You are trading on the crypto market. You are given the following information:
 
-        Your mission: maximize profit and minimize drawdown. You have tools:
+        You have tools:
         - createPosition(symbol: string, side: "LONG" | "SHORT", quantity: number, leverage: number)
         - closePosition(transactionId: number)
 
@@ -46,11 +47,6 @@ export async function invokeAgent(invocationCount: number, startTime: number) {
 
         CURRENT OPEN POSITIONS:
         {openPositions}
-
-        Now:
-        - Analyze the market
-        - Decide whether to open or close any positions
-        - Use the correct tool(s) to execute
     `);
 
 
@@ -80,7 +76,6 @@ export async function invokeAgent(invocationCount: number, startTime: number) {
             accountValue,
             availableCash,
             totalReturn,
-            btcData: BTCData,
             openPositions,
             toolCalls: toolCalls ? JSON.parse(JSON.stringify(toolCalls)) : undefined,
             response: result.text,

@@ -21,7 +21,6 @@ model AgentInvocation {
   accountValue      Float
   availableCash     Float
   totalReturn       Float
-  btcData           Json
   openPositions     Json
   toolCalls         Json?
   response          String

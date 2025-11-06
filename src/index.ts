@@ -6,7 +6,7 @@ const startTime = Date.now();
 invokeAgent(invocationCount, startTime);
 invocationCount++;
 
-setTimeout(() => {
+setInterval(() => {
     invokeAgent(invocationCount, startTime);
     invocationCount++;
 }, 1000 * 60 * 10)
